@@ -47,7 +47,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()
-            ->json(['message' => 'Hi '.$user->name.', welcome to home','access_token' => $token, 'token_type' => 'Bearer', ]);
+            ->json(['message' => 'Hi '.$user->name.', welcome to home','data' => $user,'access_token' => $token, 'token_type' => 'Bearer', ]);
     }
 
     // method for user logout and delete token
@@ -58,5 +58,25 @@ class AuthController extends Controller
         return [
             'message' => 'You have successfully logged out'
         ];
+    }
+    public function me(Request $request)
+    {
+        return $request->user();
+    }
+    public function user(Request $request)
+    {
+        $user = $request->user();
+        if($user->role==9){
+            $data = User::where('role','!=', 9)->get();
+            return response()
+            ->json(['message' => 'Successfuly Showing Data','data' => $data]);
+        }else if($user->role==10){
+            $data = User::where('member_of', $user->id)->get();
+            return response()
+            ->json(['message' => 'Successfuly Showing Data','data' => $data]);
+        }else{
+            return response()
+                ->json(['message' => 'Unauthorized this Data'], 401);
+        }
     }
 }
